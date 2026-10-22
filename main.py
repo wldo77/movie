@@ -31,16 +31,189 @@ YESTERDAY = TODAY_KST - datetime.timedelta(days=1)
 st.markdown(
     """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
-.stApp{background:radial-gradient(ellipse at 10% 5%,#40102d 0%,transparent 37%),radial-gradient(ellipse at 90% 25%,#251344 0%,transparent 40%),linear-gradient(150deg,#08070c,#120a17 55%,#08070c);color:#fff5fb;font-family:'Noto Sans KR',sans-serif}
-header[data-testid="stHeader"]{background:transparent}.block-container{max-width:1250px;padding-top:2rem;padding-bottom:4rem}h1,h2,h3{color:#fff5fb!important}
-.cinema-kicker{color:#ff718e;letter-spacing:5px;font-size:11px;font-weight:900}.cinema-title{font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:clamp(36px,5vw,64px);line-height:1.2;letter-spacing:-2px;color:#fff7fc;text-shadow:0 0 30px #ff315544;margin:10px 0}.cinema-subtitle{color:#b7a7c2;font-size:14px;line-height:1.9}
-.section-label{color:#ff829a;letter-spacing:3px;font-size:11px;font-weight:900;margin-bottom:10px}.rank-chip{display:inline-block;border:1px solid #ff4c6e88;background:#ff31551c;color:#ff8da4;border-radius:100px;padding:7px 13px;font-size:11px;font-weight:900;letter-spacing:2px}
-.movie-stage{position:relative;overflow:hidden;border:1px solid #ffffff20;border-radius:25px;padding:30px;background:radial-gradient(ellipse at 5% 50%,var(--glow,#ff315544),transparent 52%),linear-gradient(125deg,#21101f,#100d18 55%,#1c0c24);box-shadow:0 24px 75px #0009,inset 0 1px #ffffff0d}.movie-stage-content{position:relative;z-index:1}.movie-name{color:#fff;font-size:clamp(25px,3.5vw,43px);line-height:1.35;font-weight:900;letter-spacing:-1px;margin:18px 0 12px;overflow-wrap:anywhere;text-shadow:0 4px 25px #0008}.movie-meta{color:#c6b6ce;font-size:13px;line-height:2}.movie-description{margin-top:20px;padding:13px 15px;border-left:2px solid var(--glow,#ff3155);background:#ffffff08;color:#e5d8e9;font-size:13px;line-height:1.9}
-.poster-wrap{perspective:1100px;padding:8px 12px 18px}.poster-card{position:relative;max-width:285px;margin:auto;transform:rotateY(-10deg) rotateX(2deg);transform-style:preserve-3d;border-radius:13px;transition:transform .5s ease,filter .5s ease;box-shadow:17px 22px 30px #000a,0 0 24px var(--glow,#ff315566),0 0 70px var(--glow,#a855f733)}.poster-card:hover{transform:rotateY(0deg) rotateX(0deg) translateY(-7px) scale(1.025);filter:brightness(1.08)}.poster-card img{display:block;width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:12px;border:1px solid #ffffff38}
-.poster-placeholder{aspect-ratio:2/3;border-radius:12px;border:1px solid #ffffff33;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;background:radial-gradient(ellipse at 50% 35%,var(--glow,#a855f7),transparent 65%),linear-gradient(155deg,#30132e,#100b19 65%,#08070d);color:white;overflow-wrap:anywhere}.poster-number{font-size:11px;letter-spacing:5px;color:#ffd6e3}.poster-film-title{font-family:'Black Han Sans',sans-serif;font-size:29px;line-height:1.4;margin:22px 0;text-shadow:0 3px 18px #000b}.poster-caption{color:#f2c9dc;font-size:10px;letter-spacing:3px}.poster-foot{text-align:center;color:#c8afce;font-size:10px;letter-spacing:3px;margin-top:13px}
-.metric-card{padding:21px;min-height:118px;background:linear-gradient(140deg,#211320,#120e19);border:1px solid #ffffff18;border-radius:17px;box-shadow:0 10px 30px #0005}.metric-label{color:#bca8c7;font-size:12px;margin-bottom:12px}.metric-value{color:#fff4fb;font-size:clamp(22px,2.5vw,30px);font-weight:900;letter-spacing:-1px;overflow-wrap:anywhere}.metric-note{color:#ff7897;font-size:11px;margin-top:8px}.cinema-divider{height:1px;background:linear-gradient(90deg,transparent,#ff315588,#a855f788,transparent);margin:28px 0}
-div[data-testid="stDataFrame"]{border:1px solid #ffffff1c;border-radius:12px;overflow:hidden}@media(max-width:700px){.movie-stage{padding:19px}.poster-wrap{padding:5px 0 20px}.poster-card{max-width:210px}}
+/* 영화 티켓 전체 */
+.movie-ticket {
+    --ticket-glow: #ff3155;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1px 230px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #ffffff30;
+    border-radius: 22px;
+    background:
+        radial-gradient(ellipse at 0% 50%, #7f1d4b55, transparent 55%),
+        linear-gradient(135deg, #271323, #120d1c 70%, #20102c);
+    box-shadow:
+        0 20px 55px #0009,
+        0 0 28px color-mix(in srgb, var(--ticket-glow) 25%, transparent);
+    color: #fff5fb;
+    margin: 12px 0 24px;
+}
+
+/* 티켓 왼쪽 설명 */
+.ticket-info {
+    padding: 30px;
+    min-width: 0;
+    position: relative;
+}
+
+.ticket-overline {
+    color: #ff8da8;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 4px;
+}
+
+.ticket-title {
+    font-size: clamp(25px, 3vw, 40px);
+    font-weight: 900;
+    line-height: 1.4;
+    margin: 20px 0 14px;
+    overflow-wrap: anywhere;
+    text-shadow: 0 0 25px #ff315533;
+}
+
+.ticket-description {
+    color: #d9c9df;
+    font-size: 13px;
+    line-height: 2;
+    margin-top: 20px;
+    padding: 14px;
+    border-left: 3px solid var(--ticket-glow);
+    background: #ffffff08;
+    border-radius: 0 10px 10px 0;
+}
+
+.ticket-meta {
+    color: #bbaac8;
+    font-size: 12px;
+    line-height: 2;
+    margin-top: 14px;
+}
+
+/* 티켓 가운데 절취선 */
+.ticket-perforation {
+    width: 1px;
+    background: repeating-linear-gradient(
+        to bottom,
+        #ffffff66 0px,
+        #ffffff66 5px,
+        transparent 5px,
+        transparent 11px
+    );
+    position: relative;
+}
+
+/* 절취선 위아래 반원 */
+.ticket-perforation::before,
+.ticket-perforation::after {
+    content: "";
+    position: absolute;
+    left: -13px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #100b16;
+    border: 1px solid #ffffff20;
+}
+
+.ticket-perforation::before {
+    top: -13px;
+}
+
+.ticket-perforation::after {
+    bottom: -13px;
+}
+
+/* 오른쪽 포스터 영역 */
+.ticket-poster {
+    padding: 24px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff04;
+}
+
+.ticket-poster img {
+    width: 100%;
+    max-width: 190px;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 9px;
+    border: 1px solid #ffffff40;
+    box-shadow:
+        8px 12px 22px #000a,
+        0 0 22px color-mix(in srgb, var(--ticket-glow) 45%, transparent);
+    transform: perspective(800px) rotateY(-5deg);
+    transition: transform .4s ease;
+}
+
+.ticket-poster img:hover {
+    transform: perspective(800px) rotateY(0deg) translateY(-5px);
+}
+
+.ticket-poster-placeholder {
+    width: 100%;
+    max-width: 190px;
+    aspect-ratio: 2 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+    border-radius: 9px;
+    background:
+        radial-gradient(ellipse at center, var(--ticket-glow), transparent 75%),
+        linear-gradient(145deg, #35132e, #100b19);
+    box-shadow: 8px 12px 22px #000a;
+    font-size: 23px;
+    font-weight: 900;
+}
+
+/* 모바일 화면에서는 티켓을 세로로 표시 */
+@media (max-width: 650px) {
+    .movie-ticket {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ticket-perforation {
+        width: auto;
+        height: 1px;
+        background: repeating-linear-gradient(
+            to right,
+            #ffffff66 0px,
+            #ffffff66 5px,
+            transparent 5px,
+            transparent 11px
+        );
+    }
+
+    .ticket-perforation::before,
+    .ticket-perforation::after {
+        top: -13px;
+        bottom: auto;
+    }
+
+    .ticket-perforation::before {
+        left: -13px;
+    }
+
+    .ticket-perforation::after {
+        left: auto;
+        right: -13px;
+    }
+
+    .ticket-info {
+        padding: 23px;
+    }
+
+    .ticket-poster img,
+    .ticket-poster-placeholder {
+        max-width: 210px;
+    }
+}
 </style>
     """,
     unsafe_allow_html=True,
@@ -320,63 +493,101 @@ df["displayName"] = df.apply(displayed_movie_name, axis=1)
 df["rankChange"] = df["rankInten"].apply(rank_change_label)
 
 
-# 13. 1위 영화와 포스터
+# 13. 1위 영화를 티켓 모양으로 표시
+
 winner = df.iloc[0]
 winner_name = safe_text(winner["movieNm"], "영화명 없음")
 winner_title = displayed_movie_name(winner)
 winner_open = safe_text(winner["openDt"], "개봉일 정보 없음")
 winner_color = movie_color(winner_name)
 
-with st.spinner("🖼️ Google에서 영화 포스터를 찾는 중..."):
+# Google 이미지 검색으로 포스터를 찾습니다.
+with st.spinner("🎬 영화 포스터를 찾는 중..."):
     poster_url = google_poster_search(winner_name, winner_open)
 
 st.markdown(
-    '<div class="section-label">02 / THE FEATURED FILM</div>',
+    '<div class="section-label">02 / YOUR FEATURED MOVIE TICKET</div>',
     unsafe_allow_html=True,
 )
-left, right = st.columns([1.35, 0.85], gap="large")
 
-with left:
-    st.markdown(
-        f"""
-        <div class="movie-stage" style="--glow:{winner_color}55;">
-            <div class="movie-stage-content">
-                <span class="rank-chip">🏆 BOX OFFICE NO. 1</span>
-                <div class="movie-name">{html.escape(winner_title)}</div>
-                <div class="movie-meta">
-                    조회 날짜 &nbsp; {selected_date.strftime('%Y.%m.%d')}<br>
-                    개봉일 &nbsp; {html.escape(winner_open)}
-                </div>
-                <div class="movie-description">
-                    선택한 날짜의 박스오피스 1위 영화입니다.<br>
-                    오늘의 스포트라이트를 차지한 흥행의 주인공!
-                </div>
+# HTML에 넣는 영화명은 안전하게 변환합니다.
+safe_title = html.escape(winner_title)
+safe_name = html.escape(winner_name)
+safe_open = html.escape(winner_open)
+
+# 포스터를 찾지 못하면 영화명을 넣은 티켓 디자인을 사용합니다.
+if poster_url:
+    poster_html = f"""
+    <img
+        src="{html.escape(poster_url, quote=True)}"
+        alt="{safe_name} 포스터"
+    >
+    """
+else:
+    poster_html = f"""
+    <div class="ticket-poster-placeholder"
+         style="--ticket-glow:{winner_color};">
+        <span>{safe_name}</span>
+    </div>
+    """
+
+# 영화 설명과 포스터를 하나의 티켓으로 구성합니다.
+st.markdown(
+    f"""
+    <div class="movie-ticket"
+         style="--ticket-glow:{winner_color};">
+
+        <div class="ticket-info">
+            <div class="ticket-overline">
+                CINEMA NOIR · ADMIT ONE
+            </div>
+
+            <div style="margin-top:16px;">
+                <span class="rank-chip">★ BOX OFFICE NO. 1</span>
+            </div>
+
+            <div class="ticket-title">
+                {safe_title}
+            </div>
+
+            <div class="ticket-meta">
+                🎞️ 조회 날짜: {selected_date.strftime('%Y년 %m월 %d일')}<br>
+                📅 개봉일: {safe_open}<br>
+                🎟️ 당일 관객수: {safe_int(winner['audiCnt']):,}명<br>
+                👥 누적 관객수: {safe_int(winner['audiAcc']):,}명
+            </div>
+
+            <div class="ticket-description">
+                오늘의 스포트라이트를 차지한 흥행의 주인공!<br>
+                선택한 날짜의 박스오피스 1위 영화입니다.
+            </div>
+
+            <div class="ticket-overline" style="margin-top:24px;">
+                ENJOY YOUR MOVIE NIGHT ✦
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
-with right:
-    render_poster(winner_name, poster_url, winner_color)
-    # Google에서 직접 검색할 수 있는 링크도 함께 제공합니다.
-    google_query = requests.utils.quote(f"{winner_name} 영화 포스터")
-    google_link = f"https://www.google.com/search?tbm=isch&q={google_query}"
-    st.link_button(
-        "🔎 Google에서 포스터 검색",
-        google_link,
-        use_container_width=True,
-    )
-    if poster_url:
-        st.caption(
-            "Google 이미지 검색 결과의 썸네일입니다. "
-            "동명 영화면 포스터가 다를 수 있습니다."
-        )
-    else:
-        st.caption(
-            "자동으로 포스터를 불러오지 못했습니다. "
-            "위 링크에서 직접 확인할 수 있습니다."
-        )
+        <div class="ticket-perforation"></div>
+
+        <div class="ticket-poster">
+            {poster_html}
+        </div>
+
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Google 이미지 검색 링크
+google_query = requests.utils.quote(f"{winner_name} 영화 포스터")
+google_link = (
+    f"https://www.google.com/search?tbm=isch&q={google_query}"
+)
+
+st.link_button(
+    "🔎 Google에서 포스터 더 찾아보기",
+    google_link,
+)
 
 
 # 14. 1위 영화 지표 카드 세 장
