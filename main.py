@@ -1,108 +1,114 @@
-# main.py
-# CINEMA NOIR - 날짜별 박스오피스 대시보드
-# KOBIS API + Google 이미지 검색
-# 한국 시간 기준, 오늘은 선택할 수 없도록 설정
 
-import datetime
-import hashlib
-import html
-from urllib.parse import quote_plus, urlparse
-
-import requests
-import pandas as pd
-import plotly.express as px
-import streamlit as st
-from bs4 import BeautifulSoup
+for col, label, value, note in metrics:
+    with col:
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-label">{label}</div>
+                <div class="metric-value">{value:,}</div>
+                <div class="metric-note">{note}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 # ==================================================
-# 1. 기본 설정과 한국 시간
+# 15. 전체 박스오피스 표
 # ==================================================
 
-st.set_page_config(
-    page_title="CINEMA NOIR | 박스오피스",
-    page_icon="🎬",
-    layout="wide",
+st.markdown('<div class="cinema-divider"></div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="section-label">04 / THE FULL CAST</div><h2>🎞️ 전체 박스오피스</h2>',
+    unsafe_allow_html=True,
 )
 
-KOBIS_URL = (
-    "https://www.kobis.or.kr/kobisopenapi/webservice/rest/"
-    "boxoffice/searchDailyBoxOfficeList.json"
+table = df[
+    ["rank", "displayName", "openDt", "rankChange", "audiCnt", "audiAcc", "scrnCnt"]
+].copy()
+table.columns = [
+    "순위", "영화명", "개봉일", "순위 변동", "관객수", "누적관객", "스크린수"
+]
+
+for col in ["순위", "관객수", "누적관객", "스크린수"]:
+    table[col] = table[col].map(lambda x: f"{int(x):,}")
+
+styled_table = table.style.map(rank_change_style, subset=["순위 변동"])
+st.dataframe(
+    styled_table,
+    hide_index=True,
+    use_container_width=True,
+    height=min(600, 40 * (len(table) + 1)),
 )
 
-GOOGLE_IMAGES_URL = "https://www.google.com/search"
-KST = datetime.timezone(datetime.timedelta(hours=9))
 
-# 배포 서버 시간대와 상관없이 한국 날짜를 계산합니다.
-TODAY_KST = datetime.datetime.now(KST).date()
-YESTERDAY = TODAY_KST - datetime.timedelta(days=1)
+# ==================================================
+# 16. 관객수 상위 5편 그래프
+# ==================================================
+
+st.markdown('<div class="cinema-divider"></div>', unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class="section-label">05 / AUDIENCE CHART</div>
+    <h2>📊 관객수 TOP 5</h2>
+    <p style="color:#b7a7c2;font-size:13px;">
+        선택한 날짜의 관객수가 많은 영화 다섯 편
+    </p>
+    """,
+    unsafe_allow_html=True,
+)
+
+top5 = df.sort_values("audiCnt", ascending=False).head(5).copy()
+top5["조명색"] = top5["movieNm"].apply(movie_color)
+
+fig = px.bar(
+    top5.sort_values("audiCnt", ascending=True),
+    x="audiCnt",
+    y="displayName",
+    orientation="h",
+    text="audiCnt",
+    color="조명색",
+    color_discrete_map="identity",
+    labels={"audiCnt": "관객수(명)", "displayName": "영화명"},
+)
+fig.update_traces(
+    texttemplate="%{text:,.0f}명",
+    textposition="outside",
+    cliponaxis=False,
+)
+fig.update_layout(
+    height=360,
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font=dict(color="#f7eefa", family="Noto Sans KR"),
+    xaxis=dict(
+        title="관객수(명)", tickformat=",", gridcolor="#ffffff12",
+        zerolinecolor="#ffffff22",
+    ),
+    yaxis=dict(title="", gridcolor="rgba(0,0,0,0)"),
+    margin=dict(l=10, r=90, t=20, b=15),
+    showlegend=False,
+)
+st.plotly_chart(fig, use_container_width=True)
 
 
 # ==================================================
-# 2. 영화관 분위기 CSS
+# 17. 하단 안내
 # ==================================================
 
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
-
-.stApp {
-    background:
-        radial-gradient(ellipse at 10% 5%, #40102d 0%, transparent 37%),
-        radial-gradient(ellipse at 90% 25%, #251344 0%, transparent 40%),
-        linear-gradient(150deg, #08070c, #120a17 55%, #08070c);
-    color: #fff5fb;
-    font-family: 'Noto Sans KR', sans-serif;
-}
-
-header[data-testid="stHeader"] { background: transparent; }
-
-.block-container {
-    max-width: 1250px;
-    padding-top: 2rem;
-    padding-bottom: 4rem;
-}
-
-h1, h2, h3 { color: #fff5fb !important; }
-
-.cinema-kicker {
-    color: #ff718e;
-    letter-spacing: 5px;
-    font-size: 11px;
-    font-weight: 900;
-}
-
-.cinema-title {
-    font-family: 'Black Han Sans', 'Noto Sans KR', sans-serif;
-    font-size: clamp(36px, 5vw, 64px);
-    line-height: 1.2;
-    letter-spacing: -2px;
-    color: #fff7fc;
-    text-shadow: 0 0 30px #ff315544;
-    margin: 10px 0;
-}
-
-.cinema-subtitle {
-    color: #b7a7c2;
-    font-size: 14px;
-    line-height: 1.9;
-}
-
-.section-label {
-    color: #ff829a;
-    letter-spacing: 3px;
-    font-size: 11px;
-    font-weight: 900;
-    margin-bottom: 10px;
-}
-
-.rank-chip {
-    display: inline-block;
-    border: 1px solid #ff4c6e88;
-    background: #ff31551c;
-    color: #ff8da4;
-    border-radius: 100px;
-    padding: 7px 13px;
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 2
+st.markdown('<div class="cinema-divider"></div>', unsafe_allow_html=True)
+st.markdown(
+    f"""
+    <div style="text-align:center;padding:15px 0 5px;">
+        <div style="color:#ff6b89;font-size:11px;letter-spacing:4px;">
+            END OF SCREENING
+        </div>
+        <div style="color:#a99ab4;font-size:12px;margin-top:10px;line-height:2;">
+            DATA SOURCE · KOBIS 영화관입장권통합전산망<br>
+            POSTER SEARCH · Google 이미지 검색<br>
+            SELECTED DATE · {selected_date.strftime('%Y-%m-%d')}
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
